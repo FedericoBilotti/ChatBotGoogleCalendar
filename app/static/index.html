@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Support - Centro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .chat-window {
+            display: flex;
+            flex-direction: column;
+            width: 400px;
+            height: 600px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .chat-header {
+            background-color: rgb(6, 107, 68);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .chat-body {
+            padding: 10px;
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-footer {
+            padding: 10px;
+            display: flex;
+            border-top: 1px solid #ccc;
+        }
+        .chat-footer input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .chat-footer button {
+            background-color: rgb(6, 107, 68);
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-left: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .message {
+            margin: 20px 0 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+            line-height: 1.4;
+            display: flex;
+            flex-direction: column;
+        }
+        .message.user {
+            align-self: flex-end;
+            background-color: rgb(6, 107, 68);
+            color: white;
+        }
+        .message.bot {
+            align-self: flex-start;
+            background-color: #e0e0e0;
+            color: black;
+        }
+        .message .name {
+            margin-bottom: 3px;
+            font-size: 12px;
+            color: grey;
+        }
+        .message.user .name {
+            color: white;
+        }
+        .typing-indicator {
+            align-self: flex-start;
+            background-color: #e0e0e0;
+            color: black;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 20px 0 5px 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .typing-indicator .dots {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        .typing-indicator .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin: 0 2px;
+            background-color: black;
+            border-radius: 50%;
+            animation: blink 1s infinite both;
+        }
+        .typing-indicator .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-indicator .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        .typing-indicator .name {
+            margin-bottom: 10px;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+        ChatBot Google Calendar
+    </div>
+    <div class="chat-body" id="chatBody">
+        <div class="message bot">
+            <div class="name">
+                Chatbot – <span id="chatbot-time"></span>
+            </div>
+            <div class="text">
+                👋 Bienvenido al Asistente con IA para 'Google Calendar'. 
+            </div>
+        </div>
+    </div>
+    <div class="chat-footer">
+        <input type="text" id="chatInput" placeholder="Escribe tu mensaje..." onkeydown="if(event.key === 'Enter') sendMessage()">
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const timeSpan = document.getElementById("chatbot-time");
+        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        timeSpan.textContent = now;
+    });
+
+    function sendMessage() {
+        const chatBody = document.getElementById('chatBody');
+        const chatInput = document.getElementById('chatInput');
+        const message = chatInput.value;
+
+        if (message.trim() === "") return;
+
+        const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        chatBody.innerHTML += `<div class="message user"><div class="name">Tú – ${currentTime}</div><div class="text">${message}</div></div>`;
+        chatInput.value = '';
+        chatInput.disabled = true;
+
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'typing-indicator';
+        typingIndicator.innerHTML = `<div class="name">El bot está pensando...</div><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+        chatBody.appendChild(typingIndicator);
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        fetch('http://127.0.0.1:8000/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: "100", message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const botTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            chatBody.removeChild(typingIndicator);
+            chatBody.innerHTML += `<div class="message bot"><div class="name">Chatbot – ${botTime}</div><div class="text">${data.response}</div></div>`;
+            chatInput.disabled = false;
+            chatInput.focus();
+            chatBody.scrollTop = chatBody.scrollHeight;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            chatInput.disabled = false;
+            chatInput.focus();
+            chatBody.removeChild(typingIndicator);
+        });
+    }
+</script>
+
+</body>
+</html>

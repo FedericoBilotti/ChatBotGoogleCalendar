@@ -1,0 +1,16 @@
+ChatBot Google Calendar
+
+Correo electrónico: ChatBotCalendar@chatcalendar.com.ar
+
+Descripción del bot: 
+    - ChatBot Calendar, es un bot que se encargará de añadir, eliminar y mostrar tus eventos de ¡Google Calendar!
+
+¿Qué se puede hacer con el bot?:
+    - Se pueden añadir eventos, especificando fecha, hora y descripción. Formato para añadir eventos: Añadir evento Año-Mes-Día Hora, Descripción
+    - Se pueden eliminar eventos especificando la fecha. Formato para eliminar eventos: Eliminar evento Año-Mes-Día
+    - Se pueden ver los eventos en un periodo de tiempo. Formato para ver eventos: Mostrame mis eventos del Año-Mes-Día hasta Año-Mes-Día
+
+Redes sociales:
+    - Facebook: ChatBotCalendar Argentina
+    - Instagram: @ChatBotCalendar
+    ¡Seguinos para saber las ultimas actualizaciones del ChatBot Calendar!
